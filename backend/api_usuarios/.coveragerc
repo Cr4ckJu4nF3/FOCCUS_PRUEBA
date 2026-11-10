@@ -1,0 +1,14 @@
+[run]
+source = app
+omit =
+    # Arranque y conexión a la BD: no tienen lógica de negocio. La conexión
+    # real se ejercita en las pruebas de integración (semana 6).
+    app/config/database.py
+    app/main.py
+
+[report]
+# Umbral de cobertura. Regla de trinquete: nunca baja (ver docs/testing/cobertura.md)
+fail_under = 0
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

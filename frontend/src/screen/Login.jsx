@@ -223,12 +223,12 @@ export default function LoginScreen() {
           <div className="login-content">
             {/* Mensaje de error */}
             {registroExitoso && activeTab === "ingresar" && (
-              <div className="login-success">
+              <div className="login-success" role="status">
                 {registroExitoso}
               </div>
             )}
             {error && (
-              <div className="login-error">
+              <div className="login-error" role="alert">
                 {error}
               </div>
             )}
@@ -236,8 +236,8 @@ export default function LoginScreen() {
             {activeTab === "ingresar" ? (
               <form onSubmit={handleLogin} className="login-form">
                 <div className="field">
-                  <label className="field__label">E-mail</label>
-                  <input
+                  <label className="field__label" htmlFor="login-mail">E-mail</label>
+                  <input id="login-mail"
                     type="email"
                     value={mail}
                     onChange={(e) => setMail(e.target.value)}
@@ -247,9 +247,9 @@ export default function LoginScreen() {
                   />
                 </div>
                 <div className="field">
-                  <label className="field__label">Contraseña</label>
+                  <label className="field__label" htmlFor="login-password">Contraseña</label>
                   <div className="field--password">
-                    <input
+                    <input id="login-password"
                       type={verContrasena ? "text" : "password"}
                       value={contrasena}
                       onChange={(e) => setContrasena(e.target.value)}
@@ -314,8 +314,8 @@ export default function LoginScreen() {
                   </div>
                   <div className="form-grid">
                     <div className="field">
-                      <label className="field__label">Razón Social</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-razon_social">Razón Social</label>
+                      <input id="reg-razon_social"
                         type="text"
                         name="razon_social"
                         value={registro.razon_social}
@@ -326,8 +326,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Representante Legal</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-representante_legal">Representante Legal</label>
+                      <input id="reg-representante_legal"
                         type="text"
                         name="representante_legal"
                         value={registro.representante_legal}
@@ -338,8 +338,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Documento</label>
-                      <select
+                      <label className="field__label" htmlFor="reg-document">Documento</label>
+                      <select id="reg-document"
                         name="document"
                         value={registro.document}
                         onChange={handleRegistroChange}
@@ -355,8 +355,8 @@ export default function LoginScreen() {
                       </select>
                     </div>
                     <div className="field">
-                      <label className="field__label">Nº Documento</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-id_document">Nº Documento</label>
+                      <input id="reg-id_document"
                         type="text"
                         name="id_document"
                         value={registro.id_document}
@@ -367,8 +367,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Email Empresa</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-email_empresa">Email Empresa</label>
+                      <input id="reg-email_empresa"
                         type="email"
                         name="email_empresa"
                         value={registro.email_empresa}
@@ -379,8 +379,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Dirección</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-address">Dirección</label>
+                      <input id="reg-address"
                         type="text"
                         name="address"
                         value={registro.address}
@@ -390,8 +390,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Teléfono</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-telephone">Teléfono</label>
+                      <input id="reg-telephone"
                         type="tel"
                         name="telephone"
                         value={registro.telephone}
@@ -401,8 +401,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Celular Empresa</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-number_cellphone">Celular Empresa</label>
+                      <input id="reg-number_cellphone"
                         type="tel"
                         name="number_cellphone"
                         value={registro.number_cellphone}
@@ -422,8 +422,8 @@ export default function LoginScreen() {
                   </div>
                   <div className="form-grid">
                     <div className="field">
-                      <label className="field__label">Nombres</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-nombre">Nombres</label>
+                      <input id="reg-nombre"
                         type="text"
                         name="nombre"
                         value={registro.nombre}
@@ -434,8 +434,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Apellidos</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-apellido">Apellidos</label>
+                      <input id="reg-apellido"
                         type="text"
                         name="apellido"
                         value={registro.apellido}
@@ -446,8 +446,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Email Personal</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-mail">Email Personal</label>
+                      <input id="reg-mail"
                         type="email"
                         name="mail"
                         value={registro.mail}
@@ -458,8 +458,8 @@ export default function LoginScreen() {
                       />
                     </div>
                     <div className="field">
-                      <label className="field__label">Celular</label>
-                      <input
+                      <label className="field__label" htmlFor="reg-msisdn">Celular</label>
+                      <input id="reg-msisdn"
                         type="tel"
                         name="msisdn"
                         value={registro.msisdn}
@@ -480,9 +480,9 @@ export default function LoginScreen() {
                   </div>
                   <div className="form-grid">
                     <div className="field">
-                      <label className="field__label">Contraseña</label>
+                      <label className="field__label" htmlFor="reg-contrasena">Contraseña</label>
                       <div className="field--password">
-                        <input
+                        <input id="reg-contrasena"
                           type={verContrasenaReg ? "text" : "password"}
                           name="contrasena"
                           value={registro.contrasena}
@@ -497,9 +497,9 @@ export default function LoginScreen() {
                       </div>
                     </div>
                     <div className="field">
-                      <label className="field__label">Confirmar Contraseña</label>
+                      <label className="field__label" htmlFor="reg-confirmarContrasena">Confirmar Contraseña</label>
                       <div className="field--password">
-                        <input
+                        <input id="reg-confirmarContrasena"
                           type={verConfirmarReg ? "text" : "password"}
                           name="confirmarContrasena"
                           value={registro.confirmarContrasena}
