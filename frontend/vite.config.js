@@ -25,9 +25,12 @@ export default defineConfig({
         'src/screen/TwoFactor.jsx',
         'src/screen/ForgotPassword.jsx',
       ],
+      // Carruselista.jsx no se importa en ningún lado y referencia imágenes que no
+      // existen en src/assets (ver docs/testing/hallazgos.md, H-F02).
+      exclude: ['src/componentes/Carruselista.jsx'],
       // Umbral mínimo: si la cobertura baja de aquí, "npm test" falla.
       // Regla de trinquete: nunca baja (ver docs/testing/cobertura.md).
-      thresholds: { lines: 0, branches: 0, functions: 0, statements: 0 },
+      thresholds: { lines: 10, branches: 10, functions: 12, statements: 12 },
     },
   },
 })

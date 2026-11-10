@@ -28,7 +28,7 @@ os.environ.update(
     MAIL_USER="no-reply@foccus.test",
     MAIL_PASSWORD="not-a-real-password",
     CONTACT_EMAIL="soporte@foccus.test",
-    JWT_SECRET_KEY="clave-solo-para-tests",
+    JWT_SECRET_KEY="clave-solo-para-tests-de-al-menos-32-bytes",
     JWT_EXPIRE_MINUTES="60",
 )
 

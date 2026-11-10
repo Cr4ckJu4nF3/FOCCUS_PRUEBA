@@ -18,3 +18,4 @@ La fuente de verdad con el detalle es [`docs/testing/cobertura.md`](testing/cobe
 | Semana | Frontend (%) | Backend (%) | Umbral configurado para la semana siguiente |
 |---|---|---|---|
 | S1 (línea base) | 0 | 44 | front 0 · back 44 |
+| S2 | 10 | 53 | front 10 · back 53 |

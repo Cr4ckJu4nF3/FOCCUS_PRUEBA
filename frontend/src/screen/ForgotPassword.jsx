@@ -4,6 +4,7 @@ import { ArrowLeft, Mail, CheckCircle, Shield, KeyRound, Eye, EyeOff } from "luc
 import Logo from "../assets/Logo.png";
 import FondoLogin from "../assets/FondoLogin.jpeg";
 import API_URL from "../api";
+import { validarContrasena } from "../utils/validarContrasena";
 import "../desing/ForgotPassword.css";
 
 export default function ForgotPasswordScreen() {
@@ -91,15 +92,6 @@ export default function ForgotPasswordScreen() {
   const [verNueva, setVerNueva] = useState(false);
   const [verConfirmar, setVerConfirmar] = useState(false);
 
-  const validarContrasena = (password) => {
-  const reglas = [];
-  if (password.length < 8) reglas.push("Mínimo 8 caracteres");
-  if (!/[a-z]/.test(password)) reglas.push("Una letra minúscula");
-  if (!/[A-Z]/.test(password)) reglas.push("Una letra mayúscula");
-  if (!/[0-9]/.test(password)) reglas.push("Un número");
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) reglas.push("Un carácter especial");
-  return reglas;
-};
 
   return (
 
