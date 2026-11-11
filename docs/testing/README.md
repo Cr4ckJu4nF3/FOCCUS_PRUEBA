@@ -6,5 +6,6 @@ Implementación del bootcamp de testing ADSO ([bc-testing-adso](https://github.c
 |:---:|---|---|
 | 1 | Primer E2E + línea base | `e2e/tests/login.spec.js`, `register.spec.js` · `docs/matriz-rotacion.md` |
 | 2 | Unitarias + CI + umbral | `backend/api_usuarios/tests/unit/` · `frontend/tests/*.test.js` · `.github/workflows/tests.yml` |
+| 3 | Componentes React | `frontend/tests/components/` (Login, TwoFactor, ForgotPassword, ProtectedRoute) |
 
 Documentos: [cobertura y trinquete](cobertura.md) · [hallazgos](hallazgos.md)

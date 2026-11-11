@@ -129,19 +129,19 @@ export default function ForgotPasswordScreen() {
 
             <div className="auth-content">
               {error && (
-                <div className="auth-error">
+                <div className="auth-error" role="alert">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleEnviarCodigo} className="auth-form">
                 <div className="field">
-                  <label className="field__label">
+                  <label className="field__label" htmlFor="forgot-email">
                     Correo Electrónico
                   </label>
                   <div className="field--icon-left">
                     <Mail size={16} className="field__icon-left" />
-                    <input
+                    <input id="forgot-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -204,17 +204,17 @@ export default function ForgotPasswordScreen() {
 
             <div className="auth-content">
               {error && (
-                <div className="auth-error">
+                <div className="auth-error" role="alert">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleResetPassword} className="auth-form">
                 <div className="field">
-                  <label className="field__label">
+                  <label className="field__label" htmlFor="forgot-codigo">
                     Código de Verificación
                   </label>
-                  <input
+                  <input id="forgot-codigo"
                     type="text"
                     value={codigo}
                     onChange={(e) => setCodigo(e.target.value)}
@@ -225,9 +225,9 @@ export default function ForgotPasswordScreen() {
                 </div>
 
                 <div className="field">
-                  <label className="field__label">Nueva Contraseña</label>
+                  <label className="field__label" htmlFor="forgot-nueva">Nueva Contraseña</label>
                   <div className="field--password">
-                    <input
+                    <input id="forgot-nueva"
                       type={verNueva ? "text" : "password"}
                       value={nuevaContrasena}
                       onChange={(e) => setNuevaContrasena(e.target.value)}
@@ -237,7 +237,7 @@ export default function ForgotPasswordScreen() {
                     />
                     <button
                       type="button"
-                      onClick={() => setVerNueva(!verNueva)}
+                      onClick={() => setVerNueva(!verNueva)} aria-label={verNueva ? "Ocultar nueva contraseña" : "Mostrar nueva contraseña"}
                       className="field__toggle"
                     >
                       {verNueva ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -246,9 +246,9 @@ export default function ForgotPasswordScreen() {
                 </div>
 
                 <div className="field">
-                  <label className="field__label">Confirmar Nueva Contraseña</label>
+                  <label className="field__label" htmlFor="forgot-confirmar">Confirmar Nueva Contraseña</label>
                   <div className="field--password">
-                    <input
+                    <input id="forgot-confirmar"
                       type={verConfirmar ? "text" : "password"}
                       value={confirmarContrasena}
                       onChange={(e) => setConfirmarContrasena(e.target.value)}
@@ -258,7 +258,7 @@ export default function ForgotPasswordScreen() {
                     />
                     <button
                       type="button"
-                      onClick={() => setVerConfirmar(!verConfirmar)}
+                      onClick={() => setVerConfirmar(!verConfirmar)} aria-label={verConfirmar ? "Ocultar confirmación de contraseña" : "Mostrar confirmación de contraseña"}
                       className="field__toggle"
                     >
                       {verConfirmar ? <EyeOff size={20} /> : <Eye size={20} />}

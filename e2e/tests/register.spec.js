@@ -4,7 +4,7 @@ import { uniqueUser, VALID_PASSWORD } from './support.js';
 // Recorre los 3 pasos del formulario de registro hasta la pantalla de seguridad.
 async function fillRegistrationUntilSecurityStep(page, user) {
   await page.goto('/login');
-  await page.getByRole('button', { name: 'Registrar' }).click();
+  await page.getByRole('tab', { name: 'Registrar' }).click();
 
   // Paso 1: empresa
   await page.getByLabel('Razón Social').fill(user.razon_social);
