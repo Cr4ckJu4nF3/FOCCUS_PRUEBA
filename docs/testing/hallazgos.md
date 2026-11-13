@@ -13,6 +13,9 @@ Defectos y riesgos que salieron al escribir los tests. Estado: ✅ corregido · 
 | H-F05 | 3 | En Login, la pestaña «Ingresar» y el botón de envío «Ingresar» tenían el mismo nombre y las pestañas no eran `role="tab"`. | ✅ `role="tablist"/"tab"` + `aria-selected` |
 | H-F06 | 3 | ForgotPassword/TwoFactor: etiquetas desasociadas y errores sin `role="alert"` (igual que H-F01). | ✅ |
 | H-F08 | 5 | Cualquier fallo de `fetch` o de lectura del JSON muestra «No se pudo conectar con el servidor», también cuando el servidor sí respondió (p. ej. un 500 en texto plano). Engañoso para soporte. | 📝 |
+| H-F09 | 7 | `index.css`: los `@import` de Google Fonts (Montserrat, Courier Prime) quedan **después** del `@import "tailwindcss"` (que se expande a capas). Los navegadores ignoran un `@import` que no va primero: las fuentes nunca se cargan. Vite lo avisa en cada arranque («@import must precede all other statements»). | 📝 |
+| H-F10 | 7 | `ProjectSelection`: como el backend responde HTTP 200 con `success:false` ante errores de negocio, `handleCreateProject` lo toma por éxito: cierra el modal y navega al dashboard con `projectId` indefinido. Consecuencia directa de H-B18. | 🔒 `ProjectSelection.test.jsx` (`it.fails`) |
+| H-F11 | 7 | `ProjectSelection` repite el error en dos sitios (banner de página y modal) con `role="alert"`: con el modal abierto hay dos alertas. | 📝 |
 | H-F07 | 3 | `ForgotPassword` llama a `fetch` directo y no a `apiFetch`: no comparte el manejo de 401 ni el header de autorización. | 📝 |
 
 ## Backend

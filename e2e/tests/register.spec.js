@@ -1,55 +1,70 @@
-import { expect, test } from '@playwright/test';
-import { uniqueUser, VALID_PASSWORD } from './support.js';
-
-// Recorre los 3 pasos del formulario de registro hasta la pantalla de seguridad.
-async function fillRegistrationUntilSecurityStep(page, user) {
-  await page.goto('/login');
-  await page.getByRole('tab', { name: 'Registrar' }).click();
-
-  // Paso 1: empresa
-  await page.getByLabel('Razón Social').fill(user.razon_social);
-  await page.getByLabel('Representante Legal').fill(user.representante_legal);
-  await page.getByLabel('Documento', { exact: true }).selectOption(user.document);
-  await page.getByLabel('Nº Documento').fill(user.id_document);
-  await page.getByLabel('Email Empresa').fill(user.email_empresa);
-  await page.getByRole('button', { name: 'Continuar' }).click();
-
-  // Paso 2: usuario
-  await page.getByLabel('Nombres').fill(user.nombre);
-  await page.getByLabel('Apellidos').fill(user.apellido);
-  await page.getByLabel('Email Personal').fill(user.mail);
-  await page.getByLabel('Celular', { exact: true }).fill(user.msisdn);
-  await page.getByRole('button', { name: 'Continuar' }).click();
-}
+import { test, expect } from './fixtures.js';
+import { RegistroPage } from './pages/RegistroPage.js';
+import { registerUserViaApi, uniqueUser } from './support.js';
 
 test.describe('Registro de empresa y usuario', () => {
-  test('should show an error when the two passwords do not match', async ({ page }) => {
-    // Arrange
-    const user = uniqueUser('mismatch');
-    await fillRegistrationUntilSecurityStep(page, user);
+  test('should not leave step 1 while the required fields are empty', async ({ page }) => {
+    const registro = new RegistroPage(page);
+    await registro.open();
 
-    // Act
-    await page.getByLabel('Contraseña', { exact: true }).fill(VALID_PASSWORD);
-    await page.getByLabel('Confirmar Contraseña').fill('Distinta#2026');
-    await page.getByRole('button', { name: 'Crear cuenta' }).click();
+    await registro.continuar.click();
 
-    // Assert: validación del front, no llega al backend
-    await expect(page.getByRole('alert')).toHaveText('Las contraseñas no coinciden');
+    await expect(page.getByText('Paso 1 de 3')).toBeVisible();
   });
 
-  test('should confirm the registration and go back to the login tab', async ({ page }) => {
-    // Arrange
+  test('should show an error when the two passwords do not match', async ({ page }) => {
+    const registro = new RegistroPage(page);
+    await registro.untilSecurityStep(uniqueUser('mismatch'));
+
+    await registro.fillSecurity('Foccus#2026', 'Distinta#2026');
+    await registro.crearCuenta.click();
+
+    // validación del front, no llega al backend
+    await expect(registro.alert).toHaveText('Las contraseñas no coinciden');
+  });
+
+  test('should list the missing rules when the password is weak', async ({ page }) => {
+    const registro = new RegistroPage(page);
+    await registro.untilSecurityStep(uniqueUser('weak'));
+
+    await registro.fillSecurity('abc');
+    await registro.crearCuenta.click();
+
+    await expect(registro.alert).toContainText('Mínimo 8 caracteres');
+  });
+
+  test('should require accepting the terms', async ({ page }) => {
+    const registro = new RegistroPage(page);
+    await registro.untilSecurityStep(uniqueUser('terms'));
+
+    await registro.fillSecurity('Foccus#2026', 'Foccus#2026', { acceptTerms: false });
+    await registro.crearCuenta.click();
+
+    await expect(registro.alert).toHaveText('Debes aceptar los términos y condiciones');
+  });
+
+  test('should confirm the registration and go back to the login tab with the email filled', async ({ page }) => {
     const user = uniqueUser('registro');
-    await fillRegistrationUntilSecurityStep(page, user);
+    const registro = new RegistroPage(page);
+    await registro.untilSecurityStep(user);
 
-    // Act
-    await page.getByLabel('Contraseña', { exact: true }).fill(user.contrasena);
-    await page.getByLabel('Confirmar Contraseña').fill(user.contrasena);
-    await page.getByRole('checkbox').check();
-    await page.getByRole('button', { name: 'Crear cuenta' }).click();
+    await registro.fillSecurity(user.contrasena);
+    await registro.crearCuenta.click();
 
-    // Assert
-    await expect(page.getByRole('status')).toContainText('Registro completado');
-    await expect(page.getByLabel('E-mail')).toHaveValue(user.mail);
+    await expect(registro.status).toContainText('Registro completado');
+    await expect(registro.email).toHaveValue(user.mail);
+  });
+
+  test('should show the backend message when the company is already registered', async ({ page, request }) => {
+    const existente = await registerUserViaApi(request, uniqueUser('dup'));
+    const repetido = { ...uniqueUser('dup2'), email_empresa: existente.email_empresa };
+    const registro = new RegistroPage(page);
+    await registro.untilSecurityStep(repetido);
+
+    await registro.fillSecurity(repetido.contrasena);
+    await registro.crearCuenta.click();
+
+    await expect(registro.alert).toBeVisible();
+    await expect(registro.status).toHaveCount(0);
   });
 });
