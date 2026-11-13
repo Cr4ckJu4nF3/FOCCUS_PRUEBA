@@ -21,7 +21,7 @@ os.chdir(BACKEND_DIR)
 
 os.environ.update(
     DB_HOST="127.0.0.1",
-    DB_PORT="3306",
+    DB_PORT="1",
     DB_USER="test",
     DB_PASSWORD="test",
     DB_NAME="foccus_test",

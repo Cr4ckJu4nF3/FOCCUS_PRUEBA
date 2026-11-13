@@ -39,7 +39,7 @@ Los marcados 🔒 están en `backend/api_usuarios/tests/api/test_known_defects_a
 | ID | Sem | Hallazgo | Estado |
 |---|:---:|---|:---:|
 | H-B09 | 4 | `telephone` es opcional en `RegisterSchema` y en el formulario, pero `NOT NULL` en `clients`: registrar sin teléfono falla. | 🔒 |
-| H-B10 | 4 | El chequeo de empresa duplicada no normaliza el correo (`Contacto@Sur.co` ≠ `contacto@sur.co` en BD sensibles a mayúsculas). MySQL lo oculta por su collation. | 🔒 |
+| H-B10 | 4 | El chequeo de empresa duplicada no normaliza el correo. **Latente**: en MySQL (`utf8mb4_general_ci`) la comparación ignora mayúsculas y el defecto no se manifiesta (confirmado en `integration/TestCollation`); aparecería al cambiar de motor o de collation. | 🔒 |
 | H-B11 | 4 | `POST /users` compara el correo sin `strip().lower()`; un duplicado con espacios o mayúsculas llega al INSERT y da 500. | 🔒 |
 | H-B12 | 4 | `POST /clients` sin teléfono da 500 (mismo desajuste schema/tabla). | 🔒 |
 | H-B13 | 4 | `verify_2fa_code` asume que el usuario existe: si se borró tras pedir el código, 500. | 🔒 |
@@ -55,4 +55,6 @@ Los marcados 🔒 están en `backend/api_usuarios/tests/api/test_known_defects_a
 | H-B17 | 4 | El siguiente `id_project` se calcula con orden alfabético: tras `proj9999`/`proj10000` se repite el id. | 🔒 |
 | H-B22 | 4 | `project_controller.py` define `create_project` y `create_project_and_link` dos veces (la segunda pisa a la primera); `ProjectSchema` también está duplicada en `project_schema.py`. Código muerto que confunde. | 📝 |
 | H-B24 | 5 | Los campos del formulario público de contacto se insertan **sin escapar** en el HTML del correo a soporte (inyección de HTML/phishing). Probado con el SMTP simulado. | 🔒 `tests/doubles/test_mail_doubles.py` |
+| H-B25 | 6 | La API no valida longitudes y MySQL en modo estricto rechaza el texto largo con un **500** (SQLite lo aceptaba, por eso las pruebas de API no lo vieron). Afecta `project_name` (45), `razon_social` (50), `roles.nombre` (50) y otros `String(n)`. El frontend tampoco limita lo que se escribe: un título de proyecto de 46 caracteres rompe. | 🔒 `integration/` |
+| H-B26 | 6 | `escenas.id_desglose → desglose` tiene `ON DELETE CASCADE` en sentido inverso: borrar una escena (o un guion/proyecto) deja huérfanos `desglose` y `desglose_requerimientos`; y borrar un desglose borraría sus escenas. | 🔒 `integration/` |
 | H-B23 | 4 | `DEPARTAMENTOS_DESGLOSE` existe pero no se usa: un requerimiento acepta cualquier texto como departamento. | 📝 |
