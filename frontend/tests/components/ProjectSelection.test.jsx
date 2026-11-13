@@ -72,6 +72,31 @@ describe('ProjectSelection: lista de proyectos', () => {
     expect(await screen.findByText('No hay proyectos disponibles. Crea uno nuevo.')).toBeInTheDocument()
   })
 
+  it('should accept a response that is a plain list without the data wrapper', async () => {
+    apiFetch.mockResolvedValue(reply(PROYECTOS))
+    const user = renderAs(1001)
+
+    await user.click(screen.getByRole('button', { name: /Escoger Proyecto/ }))
+
+    expect(await screen.findByRole('button', { name: /La serie/ })).toBeInTheDocument()
+  })
+
+  it('should show no projects when the response is neither a list nor wrapped in data', async () => {
+    apiFetch.mockResolvedValue(reply({ data: { mensaje: 'algo raro' } }))
+    const user = renderAs(1001)
+
+    await user.click(screen.getByRole('button', { name: /Escoger Proyecto/ }))
+
+    expect(await screen.findByText('No hay proyectos disponibles. Crea uno nuevo.')).toBeInTheDocument()
+  })
+
+  it('should treat a session without a stored role as a regular user', () => {
+    localStorage.removeItem('id_rol')
+    render(<MemoryRouter><ProjectSelection /></MemoryRouter>)
+
+    expect(screen.queryByRole('button', { name: /Crear Proyecto/ })).not.toBeInTheDocument()
+  })
+
   it('should open the dashboard of the chosen project', async () => {
     apiFetch.mockResolvedValue(reply({ data: PROYECTOS }))
     const user = renderAs(1001)
@@ -176,6 +201,17 @@ describe('ProjectSelection: crear proyecto', () => {
     await user.click(screen.getAllByRole('button', { name: 'Crear Proyecto' }).at(-1))
   }
 
+  it('should create the project with client 1 when the session has no client stored', async () => {
+    apiFetch.mockResolvedValue(reply({ success: true, data: { id_project: 'proj0001' } }))
+    const user = renderAs(1001)
+    localStorage.removeItem('id_client')
+
+    await enviarFormularioValido(user)
+
+    await waitFor(() => expect(apiFetch).toHaveBeenCalled())
+    expect(JSON.parse(apiFetch.mock.calls[0][1].body).id_client).toBe(1)
+  })
+
   it('should show a validation error that comes as a plain string', async () => {
     apiFetch.mockResolvedValue(reply({ detail: 'Token inválido' }, false))
     const user = renderAs(1001)
@@ -222,6 +258,24 @@ describe('ProjectSelection: crear proyecto', () => {
 
     expect((await screen.findAllByRole('alert'))[0]).toHaveTextContent('Proyecto duplicado')
     expect(navigate).not.toHaveBeenCalled()
+  })
+
+  it('should close the modal with the close button', async () => {
+    const user = renderAs(1001)
+    await abrirModal(user)
+
+    await user.click(screen.getByRole('button', { name: 'Cerrar' }))
+
+    expect(screen.queryByLabelText('Nombre del Proyecto')).not.toBeInTheDocument()
+  })
+
+  it('should close the modal when the person clicks outside of it', async () => {
+    const user = renderAs(1001)
+    await abrirModal(user)
+
+    await user.click(document.querySelector('.pss-modal-backdrop'))
+
+    expect(screen.queryByLabelText('Nombre del Proyecto')).not.toBeInTheDocument()
   })
 
   it('should close the modal without sending anything when the person cancels', async () => {

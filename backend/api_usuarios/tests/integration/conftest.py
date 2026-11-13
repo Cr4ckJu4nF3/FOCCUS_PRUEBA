@@ -32,6 +32,9 @@ def pytest_collection_modifyitems(items):
 def mysql_engine():
     url = os.getenv("TEST_DATABASE_URL")
     if not url:
+        if os.getenv("REQUIRE_INTEGRATION") == "1":
+            # En el CI un «saltado» sería un verde falso: si falta la BD, el job debe fallar
+            pytest.fail("REQUIRE_INTEGRATION=1 pero TEST_DATABASE_URL no está definida")
         pytest.skip("TEST_DATABASE_URL no está definida: pruebas de integración omitidas")
     if "test" not in (make_url(url).database or "").lower():
         pytest.fail(

@@ -16,6 +16,7 @@ Defectos y riesgos que salieron al escribir los tests. Estado: ✅ corregido · 
 | H-F09 | 7 | `index.css`: los `@import` de Google Fonts (Montserrat, Courier Prime) quedan **después** del `@import "tailwindcss"` (que se expande a capas). Los navegadores ignoran un `@import` que no va primero: las fuentes nunca se cargan. Vite lo avisa en cada arranque («@import must precede all other statements»). | 📝 |
 | H-F10 | 7 | `ProjectSelection`: como el backend responde HTTP 200 con `success:false` ante errores de negocio, `handleCreateProject` lo toma por éxito: cierra el modal y navega al dashboard con `projectId` indefinido. Consecuencia directa de H-B18. | 🔒 `ProjectSelection.test.jsx` (`it.fails`) |
 | H-F11 | 7 | `ProjectSelection` repite el error en dos sitios (banner de página y modal) con `role="alert"`: con el modal abierto hay dos alertas. | 📝 |
+| H-F12 | 8 | El botón «X» que cierra el modal «Crear Proyecto» solo tenía un icono: sin nombre accesible. | ✅ `aria-label="Cerrar"` |
 | H-F07 | 3 | `ForgotPassword` llama a `fetch` directo y no a `apiFetch`: no comparte el manejo de 401 ni el header de autorización. | 📝 |
 
 ## Backend
@@ -60,4 +61,6 @@ Los marcados 🔒 están en `backend/api_usuarios/tests/api/test_known_defects_a
 | H-B24 | 5 | Los campos del formulario público de contacto se insertan **sin escapar** en el HTML del correo a soporte (inyección de HTML/phishing). Probado con el SMTP simulado. | 🔒 `tests/doubles/test_mail_doubles.py` |
 | H-B25 | 6 | La API no valida longitudes y MySQL en modo estricto rechaza el texto largo con un **500** (SQLite lo aceptaba, por eso las pruebas de API no lo vieron). Afecta `project_name` (45), `razon_social` (50), `roles.nombre` (50) y otros `String(n)`. El frontend tampoco limita lo que se escribe: un título de proyecto de 46 caracteres rompe. | 🔒 `integration/` |
 | H-B26 | 6 | `escenas.id_desglose → desglose` tiene `ON DELETE CASCADE` en sentido inverso: borrar una escena (o un guion/proyecto) deja huérfanos `desglose` y `desglose_requerimientos`; y borrar un desglose borraría sus escenas. | 🔒 `integration/` |
+| H-B27 | 8 | `POST /users/invite`: si el alta de un correo falla en `flush()` (p. ej. identificador temporal duplicado) la sesión queda con la transacción anulada y **todos los correos siguientes fallan** con `PendingRollbackError`; el `except` por correo no hace `rollback()`. | 🔒 `test_branches_api.py` |
+| H-B28 | 8 | La lógica «siguiente id» (`esc0001`, `proj0001`, `rod0001`, `psj0001`, `loc0001`, `req0001`, `dsg0001`) está copiada en 8 sitios (una de ellas, `_generar_id_escena_local`, duplica la de `escena_controller`). Todas caen a `0001` si el último id no es numérico, lo que **repetiría** un id existente; y calcular el máximo con orden alfabético es la causa de H-B17. | 📝 |
 | H-B23 | 4 | `DEPARTAMENTOS_DESGLOSE` existe pero no se usa: un requerimiento acepta cualquier texto como departamento. | 📝 |

@@ -1,5 +1,6 @@
 [run]
 source = app
+branch = True
 omit =
     # Arranque y conexión a la BD: no tienen lógica de negocio. La conexión
     # real se ejercita en las pruebas de integración (semana 6).
@@ -8,7 +9,7 @@ omit =
 
 [report]
 # Umbral de cobertura. Regla de trinquete: nunca baja (ver docs/testing/cobertura.md)
-fail_under = 97
+fail_under = 99
 exclude_lines =
     pragma: no cover
     if __name__ == .__main__.:
