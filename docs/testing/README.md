@@ -12,5 +12,6 @@ Implementación del bootcamp de testing ADSO ([bc-testing-adso](https://github.c
 | 6 | Integración con BD real | `backend/.../tests/integration/` · `docker-compose.test.yml` · [integracion.md](integracion.md) |
 | 7 | E2E avanzados | `e2e/tests/` (`pages/` Page Objects, `fixtures.js`, 6 specs, 31 tests) · [e2e/README.md](../../e2e/README.md) |
 | 8 | CI completo | `.github/workflows/tests.yml` · [ci.md](ci.md) · [ramas-sin-cubrir.md](ramas-sin-cubrir.md) |
+| 9 | Integrador | [estrategia-pruebas.md](../estrategia-pruebas.md) · [cierre.md](cierre.md) |
 
 Documentos: [cobertura y trinquete](cobertura.md) · [hallazgos](hallazgos.md)
