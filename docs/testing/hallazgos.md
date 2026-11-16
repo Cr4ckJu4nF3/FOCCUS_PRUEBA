@@ -12,6 +12,7 @@ Defectos y riesgos que salieron al escribir los tests. Estado: ✅ corregido · 
 | H-F04 | 3 | Los botones de mostrar/ocultar contraseña solo tenían un icono: sin nombre accesible (lector de pantalla y Testing Library no podían encontrarlos). | ✅ `aria-label` en Login y ForgotPassword |
 | H-F05 | 3 | En Login, la pestaña «Ingresar» y el botón de envío «Ingresar» tenían el mismo nombre y las pestañas no eran `role="tab"`. | ✅ `role="tablist"/"tab"` + `aria-selected` |
 | H-F06 | 3 | ForgotPassword/TwoFactor: etiquetas desasociadas y errores sin `role="alert"` (igual que H-F01). | ✅ |
+| H-F08 | 5 | Cualquier fallo de `fetch` o de lectura del JSON muestra «No se pudo conectar con el servidor», también cuando el servidor sí respondió (p. ej. un 500 en texto plano). Engañoso para soporte. | 📝 |
 | H-F07 | 3 | `ForgotPassword` llama a `fetch` directo y no a `apiFetch`: no comparte el manejo de 401 ni el header de autorización. | 📝 |
 
 ## Backend
@@ -53,4 +54,5 @@ Los marcados 🔒 están en `backend/api_usuarios/tests/api/test_known_defects_a
 | H-B16 | 4 | `numero_de_escena` es texto y se ordena alfabéticamente: la escena 10 aparece antes que la 2 (afecta lista de escenas, desglose y escenas disponibles). | 🔒 |
 | H-B17 | 4 | El siguiente `id_project` se calcula con orden alfabético: tras `proj9999`/`proj10000` se repite el id. | 🔒 |
 | H-B22 | 4 | `project_controller.py` define `create_project` y `create_project_and_link` dos veces (la segunda pisa a la primera); `ProjectSchema` también está duplicada en `project_schema.py`. Código muerto que confunde. | 📝 |
+| H-B24 | 5 | Los campos del formulario público de contacto se insertan **sin escapar** en el HTML del correo a soporte (inyección de HTML/phishing). Probado con el SMTP simulado. | 🔒 `tests/doubles/test_mail_doubles.py` |
 | H-B23 | 4 | `DEPARTAMENTOS_DESGLOSE` existe pero no se usa: un requerimiento acepta cualquier texto como departamento. | 📝 |

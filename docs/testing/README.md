@@ -8,5 +8,6 @@ Implementación del bootcamp de testing ADSO ([bc-testing-adso](https://github.c
 | 2 | Unitarias + CI + umbral | `backend/api_usuarios/tests/unit/` · `frontend/tests/*.test.js` · `.github/workflows/tests.yml` |
 | 3 | Componentes React | `frontend/tests/components/` (Login, TwoFactor, ForgotPassword, ProtectedRoute) |
 | 4 | Contrato de la API | `backend/api_usuarios/tests/api/` (incluye `test_access_control_api.py` y `test_known_defects_api.py`) |
+| 5 | Dobles de prueba | `backend/.../tests/doubles/` (SMTP mock, extractor de PDF stub, reloj falso) · `frontend/tests/api-fetch.test.js`, `components/Login.msw.test.jsx` (MSW) |
 
 Documentos: [cobertura y trinquete](cobertura.md) · [hallazgos](hallazgos.md)
