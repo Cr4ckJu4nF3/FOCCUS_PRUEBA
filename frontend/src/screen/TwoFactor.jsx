@@ -106,23 +106,23 @@ export default function TwoFactorScreen() {
           {/* Content */}
           <div className="auth-content">
             {error && (
-              <div className="auth-error">
+              <div className="auth-error" role="alert">
                 {error}
               </div>
             )}
 
             {reenviado && (
-              <div className="auth-success">
+              <div className="auth-success" role="status">
                 Código reenviado exitosamente
               </div>
             )}
 
             <form onSubmit={handleVerify} className="auth-form">
               <div className="field">
-                <label className="field__label">
+                <label className="field__label" htmlFor="twofa-codigo">
                   Código de Verificación
                 </label>
-                <input
+                <input id="twofa-codigo"
                   type="text"
                   value={codigo}
                   onChange={(e) => setCodigo(e.target.value)}

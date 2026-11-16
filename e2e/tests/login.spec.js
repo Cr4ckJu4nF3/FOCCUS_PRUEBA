@@ -9,8 +9,8 @@ test.describe('Inicio de sesión', () => {
 
     // Act
     await page.getByLabel('E-mail').fill(user.mail);
-    await page.getByLabel('Contraseña').fill('Incorrecta#1');
-    await page.locator('form').getByRole('button', { name: 'Ingresar' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill('Incorrecta#1');
+    await page.getByRole('button', { name: 'Ingresar' }).click();
 
     // Assert: el backend responde 200 con success:false y el front muestra el mensaje
     await expect(page.getByRole('alert')).toHaveText('Contraseña incorrecta');
@@ -24,8 +24,8 @@ test.describe('Inicio de sesión', () => {
 
     // Act
     await page.getByLabel('E-mail').fill(mail);
-    await page.getByLabel('Contraseña').fill('Cualquiera#1');
-    await page.locator('form').getByRole('button', { name: 'Ingresar' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill('Cualquiera#1');
+    await page.getByRole('button', { name: 'Ingresar' }).click();
 
     // Assert
     await expect(page.getByRole('alert')).toHaveText('Correo no registrado');

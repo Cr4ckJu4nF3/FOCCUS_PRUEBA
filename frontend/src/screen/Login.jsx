@@ -196,14 +196,18 @@ export default function LoginScreen() {
         {/* Card */}
         <div className="login-card">
           {/* Tabs */}
-          <div className="login-tabs">
+          <div className="login-tabs" role="tablist">
             <button
+              role="tab"
+              aria-selected={activeTab === "ingresar"}
               onClick={() => { setActiveTab("ingresar"); setError(""); }}
               className={`login-tab ${activeTab === "ingresar" ? "login-tab--active" : ""}`}
             >
               Ingresar
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === "registrar"}
               onClick={() => { setActiveTab("registrar"); setError(""); setRegistroPaso(1); }}
               className={`login-tab ${activeTab === "registrar" ? "login-tab--active" : ""}`}
             >
@@ -251,7 +255,7 @@ export default function LoginScreen() {
                     />
                     <button
                       type="button"
-                      onClick={() => setVerContrasena(!verContrasena)}
+                      onClick={() => setVerContrasena(!verContrasena)} aria-label={verContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
                       className="field__toggle"
                     >
                       {verContrasena ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -483,7 +487,7 @@ export default function LoginScreen() {
                           placeholder="Crea una contraseña"
                           required
                         />
-                        <button type="button" onClick={() => setVerContrasenaReg(!verContrasenaReg)} className="field__toggle">
+                        <button type="button" onClick={() => setVerContrasenaReg(!verContrasenaReg)} aria-label={verContrasenaReg ? "Ocultar contraseña" : "Mostrar contraseña"} className="field__toggle">
                           {verContrasenaReg ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                       </div>
@@ -500,7 +504,7 @@ export default function LoginScreen() {
                           placeholder="Confirma tu contraseña"
                           required
                         />
-                        <button type="button" onClick={() => setVerConfirmarReg(!verConfirmarReg)} className="field__toggle">
+                        <button type="button" onClick={() => setVerConfirmarReg(!verConfirmarReg)} aria-label={verConfirmarReg ? "Ocultar confirmación de contraseña" : "Mostrar confirmación de contraseña"} className="field__toggle">
                           {verConfirmarReg ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                       </div>
