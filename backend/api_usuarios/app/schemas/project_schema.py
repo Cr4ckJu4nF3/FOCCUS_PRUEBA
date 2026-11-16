@@ -28,7 +28,7 @@ class ProjectSchema(BaseModel):
     id_client: int
 
 class ProjectCreateSchema(BaseModel):
-    project_name: str
+    project_name: str = Field(max_length=45)
     formato_de_produccion: str
     genero: str
     sinopsis: Optional[str] = None
