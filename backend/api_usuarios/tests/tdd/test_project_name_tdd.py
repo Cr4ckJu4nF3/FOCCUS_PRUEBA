@@ -26,3 +26,16 @@ def test_creating_a_project_with_a_46_character_name_is_rejected_with_422(client
     response = client.post("/projects", json=payload(empresa.id_cliente, project_name=LARGO), headers=admin_headers)
 
     assert_rejects_name_with_422(response)
+
+
+# ── Ciclo 2 ──
+def test_create_and_link_with_a_46_character_name_is_rejected_with_422(client, db, member_user, member_headers):
+    empresa = make_client(db)
+
+    response = client.post(
+        "/projects/create",
+        json=payload(empresa.id_cliente, project_name=LARGO, id_user=member_user.id_user),
+        headers=member_headers,
+    )
+
+    assert_rejects_name_with_422(response)
