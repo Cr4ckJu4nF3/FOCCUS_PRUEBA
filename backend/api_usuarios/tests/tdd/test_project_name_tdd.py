@@ -77,3 +77,22 @@ def test_a_blank_project_name_is_rejected_with_422(client, db, member_user, memb
         )
 
     assert_rejects_name_with_422(respuesta)
+
+
+# ── Valores límite: nacen en verde (el ciclo 4 ya los cubre) ──
+def test_a_45_character_name_is_accepted(client, db, admin_headers):
+    empresa = make_client(db)
+
+    response = client.post("/projects", json=payload(empresa.id_cliente, project_name="x" * 45), headers=admin_headers)
+
+    assert response.json()["success"] is True
+
+
+def test_surrounding_spaces_are_removed_before_saving(client, db, admin_headers):
+    empresa = make_client(db)
+
+    response = client.post(
+        "/projects", json=payload(empresa.id_cliente, project_name="  La serie  "), headers=admin_headers
+    )
+
+    assert response.json()["data"]["project_name"] == "La serie"

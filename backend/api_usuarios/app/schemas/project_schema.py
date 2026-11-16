@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, StringConstraints
 from typing import Annotated, Optional
 
 # projects.project_name es VARCHAR(45) (ver models/project_model.py): una sola definición del límite
 PROJECT_NAME_MAX_LENGTH = 45
-ProjectName = Annotated[str, Field(max_length=PROJECT_NAME_MAX_LENGTH)]
+ProjectName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=PROJECT_NAME_MAX_LENGTH)]
 
 class ProjectSchema(BaseModel):
     id_project: str
