@@ -346,4 +346,42 @@ describe('Login: registro de empresa y usuario', () => {
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
+
+  it('should reveal and hide both password fields of the registration form', async () => {
+    const user = renderLogin()
+    await goToStep3(user)
+
+    await user.click(screen.getByRole('button', { name: 'Mostrar contraseña' }))
+    await user.click(screen.getByRole('button', { name: 'Mostrar confirmación de contraseña' }))
+    expect(screen.getByLabelText('Contraseña')).toHaveAttribute('type', 'text')
+    expect(screen.getByLabelText('Confirmar Contraseña')).toHaveAttribute('type', 'text')
+
+    await user.click(screen.getByRole('button', { name: 'Ocultar contraseña' }))
+    await user.click(screen.getByRole('button', { name: 'Ocultar confirmación de contraseña' }))
+    expect(screen.getByLabelText('Contraseña')).toHaveAttribute('type', 'password')
+    expect(screen.getByLabelText('Confirmar Contraseña')).toHaveAttribute('type', 'password')
+  })
+
+  it('should go back to the login tab from the registration form', async () => {
+    const user = renderLogin()
+    await user.click(screen.getByRole('tab', { name: 'Registrar' }))
+
+    await user.click(screen.getByRole('tab', { name: 'Ingresar' }))
+
+    expect(screen.getByLabelText('E-mail')).toBeInTheDocument()
+  })
+
+  it.each([
+    ['a plain string', { detail: 'Datos inválidos' }, 'Datos inválidos'],
+    ['a list', { detail: [{ msg: 'campo a' }, { msg: 'campo b' }] }, 'campo a, campo b'],
+  ])('should show a registration validation error that comes as %s', async (_forma, cuerpo, esperado) => {
+    apiFetch.mockResolvedValue(reply(cuerpo, false))
+    const user = renderLogin()
+    await goToStep3(user)
+    await fillStep3(user)
+
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(esperado)
+  })
 })

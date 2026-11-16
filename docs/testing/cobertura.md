@@ -10,7 +10,7 @@ La cobertura se mide con el **mismo comando de test de siempre** y falla si baja
 ## Qué se mide (y qué no)
 
 - **Backend**: todo `app/` salvo `app/main.py` y `app/config/database.py` (arranque y conexión: se ejercitan en integración, semana 6).
-- **Frontend**: `api.js`, `utils/` y las pantallas del flujo de autenticación (`ProtectedRoute`, `Login`, `TwoFactor`, `ForgotPassword`). El resto de pantallas se cubre por E2E; para medirlas, amplía `coverage.include` en `vite.config.js`.
+- **Frontend**: `api.js`, `utils/` y las pantallas del flujo de autenticación (`ProtectedRoute`, `Login`, `TwoFactor`, `ForgotPassword`, `ProjectSelection`). El resto de pantallas se cubre por E2E; para medirlas, amplía `coverage.include` en `vite.config.js`.
 
 ## Regla de trinquete
 
@@ -24,9 +24,12 @@ Umbral de la semana = **mayor** entre el piso del plan y la cobertura real de la
 | S4 | 50 % | 95 % | 91 % | 95 / 90 |
 | S5 | 60 % | 98 % | 97 % | 98 / 97 |
 | S6 | 70 % | 98 % | 97 % | 98 / 97 |
+| S7 | 75 % | 99 % | 97 % | 99 / 97 |
 
 > **S2, frontend**: el piso del plan (30 %) no es alcanzable con solo pruebas unitarias porque el alcance incluye `Login.jsx` (≈550 líneas de JSX), `ForgotPassword.jsx` y `TwoFactor.jsx`, que se prueban en la semana 3. El umbral se fija en la cobertura real (10 %) y sube en la semana 3.
 
 > **S3, frontend**: sube a 95 % porque el alcance es deliberadamente pequeño (5 módulos). Es una métrica del flujo de autenticación, no de toda la SPA.
 
 > **S6**: las pruebas de integración (BD real) verifican comportamiento, no suman líneas nuevas: la cobertura se mantiene.
+
+> **S7**: `ProjectSelection.jsx` entra al alcance del frontend (sus tests de componente son además el contrato de selectores de los E2E).

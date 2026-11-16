@@ -163,7 +163,7 @@ export default function ProjectSelectionScreen() {
 
         {/* Error */}
         {error && (
-          <div className="pss-error">
+          <div className="pss-error" role="alert">
             {error}
           </div>
         )}
@@ -305,17 +305,17 @@ export default function ProjectSelectionScreen() {
             {/* Modal Body */}
             <div className="pss-modal-body">
               {error && (
-                <div className="pss-modal-error">
+                <div className="pss-modal-error" role="alert">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleCreateProject} className="pss-modal-form" id="create-project-form">
                 <div className="pss-modal-field">
-                  <label className="pss-modal-label">
+                  <label className="pss-modal-label" htmlFor="proj-project_name">
                     Nombre del Proyecto
                   </label>
-                  <input
+                  <input id="proj-project_name"
                     type="text"
                     name="project_name"
                     value={formData.project_name}
@@ -328,10 +328,10 @@ export default function ProjectSelectionScreen() {
 
                 <div className="pss-modal-grid-2">
                   <div className="pss-modal-field">
-                    <label className="pss-modal-label">
+                    <label className="pss-modal-label" htmlFor="proj-formato_de_produccion">
                       Formato
                     </label>
-                    <select
+                    <select id="proj-formato_de_produccion"
                       name="formato_de_produccion"
                       value={formData.formato_de_produccion}
                       onChange={handleChange}
@@ -348,10 +348,10 @@ export default function ProjectSelectionScreen() {
                   </div>
 
                   <div className="pss-modal-field">
-                    <label className="pss-modal-label">
+                    <label className="pss-modal-label" htmlFor="proj-genero">
                       Género
                     </label>
-                    <select
+                    <select id="proj-genero"
                       name="genero"
                       value={formData.genero}
                       onChange={handleChange}
@@ -369,10 +369,10 @@ export default function ProjectSelectionScreen() {
                 </div>
 
                 <div className="pss-modal-field">
-                  <label className="pss-modal-label">
+                  <label className="pss-modal-label" htmlFor="proj-sinopsis">
                     Sinopsis
                   </label>
-                  <textarea
+                  <textarea id="proj-sinopsis"
                     name="sinopsis"
                     value={formData.sinopsis}
                     onChange={handleChange}
@@ -383,10 +383,10 @@ export default function ProjectSelectionScreen() {
                 </div>
 
                 <div className="pss-modal-field">
-                  <label className="pss-modal-label">
+                  <label className="pss-modal-label" htmlFor="proj-director">
                     Director
                   </label>
-                  <input
+                  <input id="proj-director"
                     type="text"
                     name="director"
                     value={formData.director}
