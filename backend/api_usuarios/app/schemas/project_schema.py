@@ -11,7 +11,7 @@ class ProjectSchema(BaseModel):
     id_client: int
 
 class ProjectUpdateSchema(BaseModel):
-    project_name: Optional[str] = None
+    project_name: Optional[str] = Field(default=None, max_length=45)
     formato_de_produccion: Optional[str] = None
     genero: Optional[str] = None
     sinopsis: Optional[str] = None
