@@ -319,6 +319,7 @@ export default function ProjectSelectionScreen() {
                   <input id="proj-project_name"
                     type="text"
                     name="project_name"
+                    maxLength={45}
                     value={formData.project_name}
                     onChange={handleChange}
                     className="pss-modal-input"
