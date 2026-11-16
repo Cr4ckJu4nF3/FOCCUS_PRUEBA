@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class ProjectSchema(BaseModel):
@@ -20,7 +20,7 @@ class ProjectUpdateSchema(BaseModel):
 
 class ProjectSchema(BaseModel):
     id_project: Optional[str] = None
-    project_name: str
+    project_name: str = Field(max_length=45)
     formato_de_produccion: str
     genero: str
     sinopsis: Optional[str] = None
