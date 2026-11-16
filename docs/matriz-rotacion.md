@@ -26,3 +26,4 @@ La fuente de verdad con el detalle es [`docs/testing/cobertura.md`](testing/cobe
 | S7 | 99 | 97 | front 99 · back 97 |
 | S8 | 100 | 99 | front 100/99 · back 99 |
 | S9 | 100 | 99 | front 100/99 · back 99 |
+| S10 (opcional) | 100 | 99 | front 100/99 · back 99 |

@@ -33,3 +33,40 @@ Como **administrador**, quiero que el sistema valide el nombre del proyecto al c
 
 - Validar longitudes de `razon_social`, `roles.nombre`, etc. (resto de H-B25).
 - Mensajes de error en español (hoy son los de Pydantic).
+
+## Resultado (historial de la rama `test/semana-10-tdd`)
+
+Cada ciclo deja dos commits: el test en rojo y el código que lo pone en verde. Mensajes reales de cada Red:
+
+| Ciclo | Red (por qué falló) | Green (cambio mínimo) |
+|---|---|---|
+| E2E inicial | `Received: 60 x` esperando 45 · no existe `8/45` · API `Expected 422, Received 500` | — (verde al final) |
+| C1 `POST /projects` | `assert 200 == 422` | `max_length=45` en `ProjectSchema` |
+| C2 `POST /projects/create` | `ValidationError` sin controlar: la ruta arma un `ProjectSchema` interno y explota (500 real) | mismo límite en `ProjectCreateSchema` |
+| C3 `PATCH` / `PUT` | `PATCH: assert 200 == 422`. **`PUT` nació en verde** (ya lo cubría C1) | límite en `ProjectUpdateSchema` |
+| **Refactor** | suite en verde | un solo tipo `ProjectName` en los tres schemas |
+| C4 nombre vacío / solo espacios | 8 de 8: `assert 200 == 422` | `StringConstraints(strip_whitespace, min_length=1, max_length=45)`: **un solo cambio** sirve a los 4 endpoints gracias al refactor |
+| F1 campo del modal | `Expected the element to have attribute maxLength=45` | `maxLength={45}` |
+| F2 contador | `Unable to find an element with the text: 0/45` | `<small>{n}/45</small>` |
+
+Nacieron en verde (documentan valores límite, no son ciclos): 45 caracteres exactos y recorte de espacios.
+
+## Mutaciones sobre el código nuevo
+
+| Cambio en el código | Tests que fallan |
+|---|---|
+| quitar `strip_whitespace` | 5 |
+| quitar `min_length=1` | 8 |
+| límite 45 → 46 | 4 |
+| límite 45 → 44 | 1 |
+| `maxLength={45}` → `{46}` (front) | 1 |
+| contador `/45` → `/46` (front) | 1 |
+
+Ningún cambio sobrevivió: no hay código que ningún test haya pedido.
+
+## Cierre de la lista
+
+- [x] Los 9 puntos de la lista. El E2E escrito al inicio (3 tests) pasó de rojo a verde.
+- Quedan fuera (incidencia): mensajes de 422 en español; límites de las demás columnas (resto de H-B25); el código muerto `ProjectSchema` duplicado (H-B22) sigue en `project_schema.py`.
+- Efecto en hallazgos: **H-B25 queda parcialmente corregido** (`project_name`). El test de integración correspondiente pasó de `xfail` a test normal.
+- CI/cobertura: backend 99,02 % · frontend 100 % · E2E 34/34.

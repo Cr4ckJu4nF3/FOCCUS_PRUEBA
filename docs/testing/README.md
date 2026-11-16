@@ -13,5 +13,6 @@ Implementación del bootcamp de testing ADSO ([bc-testing-adso](https://github.c
 | 7 | E2E avanzados | `e2e/tests/` (`pages/` Page Objects, `fixtures.js`, 6 specs, 31 tests) · [e2e/README.md](../../e2e/README.md) |
 | 8 | CI completo | `.github/workflows/tests.yml` · [ci.md](ci.md) · [ramas-sin-cubrir.md](ramas-sin-cubrir.md) |
 | 9 | Integrador | [estrategia-pruebas.md](../estrategia-pruebas.md) · [cierre.md](cierre.md) |
+| 10 | TDD (rama `test/semana-10-tdd`) | [tdd-nombre-de-proyecto.md](tdd-nombre-de-proyecto.md) · `backend/.../tests/tdd/` · `e2e/tests/project-name-limit.spec.js` |
 
 Documentos: [cobertura y trinquete](cobertura.md) · [hallazgos](hallazgos.md)
