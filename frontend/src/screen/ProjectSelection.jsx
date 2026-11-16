@@ -319,12 +319,16 @@ export default function ProjectSelectionScreen() {
                   <input id="proj-project_name"
                     type="text"
                     name="project_name"
+                    maxLength={45}
                     value={formData.project_name}
                     onChange={handleChange}
                     className="pss-modal-input"
                     placeholder="Nombre de la serie, película u otro proyecto audiovisual"
                     required
                   />
+                  <small className="pss-modal-counter" style={{ display: "block", textAlign: "right", opacity: 0.7 }}>
+                    {formData.project_name.length}/45
+                  </small>
                 </div>
 
                 <div className="pss-modal-grid-2">

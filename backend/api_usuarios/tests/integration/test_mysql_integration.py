@@ -342,6 +342,17 @@ class TestColumnLimits:
 
         assert body["success"] is True
 
+    def test_a_project_name_of_46_characters_is_rejected_with_422_instead_of_a_500(self, client_500, db, admin_headers):
+        empresa = make_client(db)
+
+        response = client_500.post(
+            "/projects",
+            json=dict(project_name="x" * 46, formato_de_produccion="S", genero="D", id_client=empresa.id_cliente),
+            headers=admin_headers,
+        )
+
+        assert response.status_code == 422
+
     @pytest.mark.xfail(
         strict=True,
         reason="H-B25: la API no valida longitudes; MySQL estricto rechaza el INSERT y el cliente recibe 500",
@@ -349,7 +360,6 @@ class TestColumnLimits:
     @pytest.mark.parametrize(
         "ruta, cuerpo",
         [
-            ("/projects", dict(project_name="x" * 46, formato_de_produccion="S", genero="D", id_client=1)),
             (
                 "/clients",
                 dict(document="NIT", razon_social="x" * 51, representante_legal="Y", email="q@y.co",
@@ -360,7 +370,7 @@ class TestColumnLimits:
                 dict(nombre="x" * 51, nivel_jerarquia="1"),
             ),
         ],
-        ids=["project_name-46", "razon_social-51", "rol-nombre-51"],
+        ids=["razon_social-51", "rol-nombre-51"],
     )
     def test_a_value_longer_than_its_column_should_be_rejected_with_a_validation_error(
         self, client_500, admin_headers, ruta, cuerpo
