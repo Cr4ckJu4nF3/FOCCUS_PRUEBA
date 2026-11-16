@@ -23,7 +23,10 @@ Umbral de la semana = **mayor** entre el piso del plan y la cobertura real de la
 | S3 | 40 % | 95 % | 53 % | 95 / 53 |
 | S4 | 50 % | 95 % | 91 % | 95 / 90 |
 | S5 | 60 % | 98 % | 97 % | 98 / 97 |
+| S6 | 70 % | 98 % | 97 % | 98 / 97 |
 
 > **S2, frontend**: el piso del plan (30 %) no es alcanzable con solo pruebas unitarias porque el alcance incluye `Login.jsx` (≈550 líneas de JSX), `ForgotPassword.jsx` y `TwoFactor.jsx`, que se prueban en la semana 3. El umbral se fija en la cobertura real (10 %) y sube en la semana 3.
 
 > **S3, frontend**: sube a 95 % porque el alcance es deliberadamente pequeño (5 módulos). Es una métrica del flujo de autenticación, no de toda la SPA.
+
+> **S6**: las pruebas de integración (BD real) verifican comportamiento, no suman líneas nuevas: la cobertura se mantiene.
