@@ -34,7 +34,7 @@ os.environ.update(
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
-from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy import create_engine, event  # noqa: E402
 from sqlalchemy.dialects.mysql import LONGTEXT  # noqa: E402
 from sqlalchemy.ext.compiler import compiles  # noqa: E402
 from sqlalchemy.pool import StaticPool  # noqa: E402
@@ -53,6 +53,14 @@ _test_engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
+
+
+@event.listens_for(_test_engine, "connect")
+def _enforce_foreign_keys(dbapi_connection, _record):
+    # MySQL hace cumplir las claves foráneas; SQLite no, salvo que se le pida.
+    dbapi_connection.execute("PRAGMA foreign_keys=ON")
+
+
 database.engine = _test_engine
 database.SessionLocal.configure(bind=_test_engine)
 
@@ -66,8 +74,15 @@ MEMBER_ROLE = 1005
 @pytest.fixture(autouse=True)
 def fresh_database():
     """Esquema limpio en cada test: ningún test depende del anterior."""
+    # guion <-> guion_version se referencian en círculo: se recrea con FK apagadas
+    raw = _test_engine.raw_connection()
+    raw.execute("PRAGMA foreign_keys=OFF")
+    raw.close()
     database.Base.metadata.drop_all(bind=_test_engine)
     database.Base.metadata.create_all(bind=_test_engine)
+    raw = _test_engine.raw_connection()
+    raw.execute("PRAGMA foreign_keys=ON")
+    raw.close()
     yield
 
 
@@ -88,10 +103,14 @@ def clear_in_memory_codes():
 @pytest.fixture(autouse=True)
 def no_real_emails(mocker):
     """Ningún test envía correos reales: el mailer se reemplaza por un stub."""
-    return {
+    stubs = {
         name: mocker.patch(f"app.controllers.user_controller.{name}", return_value=True)
         for name in ("send_recovery_email", "send_2fa_email", "send_invitation_email")
     }
+    stubs["send_contact_email"] = mocker.patch(
+        "app.controllers.contact_controller.send_contact_email", return_value=True
+    )
+    return stubs
 
 
 @pytest.fixture
@@ -117,16 +136,40 @@ def client():
     return TestClient(app)
 
 
-def auth_headers(id_user=1, id_rol=ADMIN_ROLE):
+@pytest.fixture
+def client_500():
+    """Como `client`, pero un error no controlado se devuelve como HTTP 500
+    (lo que vería el frontend) en vez de relanzarse dentro del test."""
+    return TestClient(app, raise_server_exceptions=False)
+
+
+def auth_headers(user=None, *, id_user=None, id_rol=None):
+    """Encabezado Authorization para un usuario (fila de BD) o para ids explícitos."""
+    if user is not None:
+        id_user, id_rol = user.id_user, user.id_rol
     token = create_access_token({"id_user": id_user, "id_rol": id_rol})
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
-def admin_headers():
-    return auth_headers(1, ADMIN_ROLE)
+def admin_user(db):
+    from tests.factories import make_user
+
+    return make_user(db, mail="admin@foccus.test", id_rol=ADMIN_ROLE, id_identificacion="ADM-1")
 
 
 @pytest.fixture
-def member_headers():
-    return auth_headers(2, MEMBER_ROLE)
+def member_user(db):
+    from tests.factories import make_user
+
+    return make_user(db, mail="miembro@foccus.test", id_rol=MEMBER_ROLE, id_identificacion="MEM-1")
+
+
+@pytest.fixture
+def admin_headers(admin_user):
+    return auth_headers(admin_user)
+
+
+@pytest.fixture
+def member_headers(member_user):
+    return auth_headers(member_user)

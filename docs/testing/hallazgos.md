@@ -13,3 +13,44 @@ Defectos y riesgos que salieron al escribir los tests. Estado: ✅ corregido · 
 | H-F05 | 3 | En Login, la pestaña «Ingresar» y el botón de envío «Ingresar» tenían el mismo nombre y las pestañas no eran `role="tab"`. | ✅ `role="tablist"/"tab"` + `aria-selected` |
 | H-F06 | 3 | ForgotPassword/TwoFactor: etiquetas desasociadas y errores sin `role="alert"` (igual que H-F01). | ✅ |
 | H-F07 | 3 | `ForgotPassword` llama a `fetch` directo y no a `apiFetch`: no comparte el manejo de 401 ni el header de autorización. | 📝 |
+
+## Backend
+
+Los marcados 🔒 están en `backend/api_usuarios/tests/api/test_known_defects_api.py` como `xfail(strict=True)`: la suite está en verde hoy y el test **falla** el día que el defecto se corrija, para que se quite la marca.
+
+### Seguridad
+
+| ID | Sem | Hallazgo | Estado |
+|---|:---:|---|:---:|
+| H-B01 | 4 | `/users/login` devuelve un `access_token` válido **antes** del 2FA. Quien conozca la contraseña llama a la API directamente y nunca verifica el código; el 2FA solo se aplica en la interfaz. | 🔒 |
+| H-B02 | 4 | `PATCH /users/{id}` solo exige estar autenticado: un usuario puede ponerse `id_rol: 1001` (administrador). | 🔒 |
+| H-B03 | 4 | Misma ruta (y `PUT`): cualquier usuario edita (correo, contraseña) a cualquier otro. | 🔒 |
+| H-B04 | 4 | `POST /users/invite` no exige administrador y toma `id_rol` (y `id_client`) del cuerpo: se puede invitar a alguien como administrador de cualquier proyecto. | 🔒 |
+| H-B05 | 4 | `POST /projects/create` toma `id_user` del cuerpo y lo vincula como administrador (1001): se puede dar acceso de admin a otro usuario. | 🔒 |
+| H-B06 / H-B07 | 4 | No hay aislamiento entre empresas: cualquier usuario autenticado lee usuarios y proyectos de otras empresas por id. | 🔒 |
+| H-B08 | 4 | `/register` devuelve en `error` la sentencia SQL completa **con el hash bcrypt** cuando el INSERT falla. | 🔒 |
+| H-B19 | 4 | Códigos 2FA, de recuperación y contraseñas temporales usan `random` (predecible) en lugar de `secrets`. | 📝 |
+| H-B20 | 4 | Sin límite de intentos para el código 2FA/recuperación (6 dígitos, 10 min). `verified_devices` se llena pero nunca se consulta: `/users/2fa/check` siempre exige verificación. | 📝 |
+| H-B21 | 4 | `POST /contact` es público y sin límite de frecuencia ni captcha: permite enviar correo masivo a `CONTACT_EMAIL`. | 📝 |
+
+### Errores y validación
+
+| ID | Sem | Hallazgo | Estado |
+|---|:---:|---|:---:|
+| H-B09 | 4 | `telephone` es opcional en `RegisterSchema` y en el formulario, pero `NOT NULL` en `clients`: registrar sin teléfono falla. | 🔒 |
+| H-B10 | 4 | El chequeo de empresa duplicada no normaliza el correo (`Contacto@Sur.co` ≠ `contacto@sur.co` en BD sensibles a mayúsculas). MySQL lo oculta por su collation. | 🔒 |
+| H-B11 | 4 | `POST /users` compara el correo sin `strip().lower()`; un duplicado con espacios o mayúsculas llega al INSERT y da 500. | 🔒 |
+| H-B12 | 4 | `POST /clients` sin teléfono da 500 (mismo desajuste schema/tabla). | 🔒 |
+| H-B13 | 4 | `verify_2fa_code` asume que el usuario existe: si se borró tras pedir el código, 500. | 🔒 |
+| H-B14 | 4 | `POST /guiones` no valida que el proyecto exista: la FK revienta con 500. | 🔒 |
+| H-B15 | 4 | Importar un plan de rodaje con una fecha imposible (31 de febrero) crea un día con `fecha_inicio = NULL` y da 500. | 🔒 |
+| H-B18 | 4 | Contrato: los errores de negocio responden **HTTP 200** con `success:false`. Los clientes HTTP, caches y monitoreo no los distinguen de un éxito. Los tests actuales lo documentan. | 📝 |
+
+### Lógica de negocio y código
+
+| ID | Sem | Hallazgo | Estado |
+|---|:---:|---|:---:|
+| H-B16 | 4 | `numero_de_escena` es texto y se ordena alfabéticamente: la escena 10 aparece antes que la 2 (afecta lista de escenas, desglose y escenas disponibles). | 🔒 |
+| H-B17 | 4 | El siguiente `id_project` se calcula con orden alfabético: tras `proj9999`/`proj10000` se repite el id. | 🔒 |
+| H-B22 | 4 | `project_controller.py` define `create_project` y `create_project_and_link` dos veces (la segunda pisa a la primera); `ProjectSchema` también está duplicada en `project_schema.py`. Código muerto que confunde. | 📝 |
+| H-B23 | 4 | `DEPARTAMENTOS_DESGLOSE` existe pero no se usa: un requerimiento acepta cualquier texto como departamento. | 📝 |

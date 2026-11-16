@@ -21,6 +21,7 @@ Umbral de la semana = **mayor** entre el piso del plan y la cobertura real de la
 | S1 | línea base | 0 % | 44 % | 0 / 44 |
 | S2 | 30 % | 10 % | 53 % | 10 / 53 |
 | S3 | 40 % | 95 % | 53 % | 95 / 53 |
+| S4 | 50 % | 95 % | 91 % | 95 / 90 |
 
 > **S2, frontend**: el piso del plan (30 %) no es alcanzable con solo pruebas unitarias porque el alcance incluye `Login.jsx` (≈550 líneas de JSX), `ForgotPassword.jsx` y `TwoFactor.jsx`, que se prueban en la semana 3. El umbral se fija en la cobertura real (10 %) y sube en la semana 3.
 
