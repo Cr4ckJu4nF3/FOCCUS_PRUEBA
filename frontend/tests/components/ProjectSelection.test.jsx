@@ -165,6 +165,16 @@ describe('ProjectSelection: crear proyecto', () => {
     expect(screen.getByLabelText('Nombre del Proyecto')).toHaveAttribute('maxLength', '45')
   })
 
+  it('should show how many characters the project name has', async () => {
+    const user = renderAs(1001)
+    await abrirModal(user)
+    expect(screen.getByText('0/45')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Nombre del Proyecto'), 'Hola')
+
+    expect(screen.getByText('4/45')).toBeInTheDocument()
+  })
+
   it('should send the form with the ids of the logged user and open the new dashboard', async () => {
     apiFetch.mockResolvedValue(reply({ success: true, data: { id_project: 'proj0009' } }))
     const user = renderAs(1001)
