@@ -39,3 +39,16 @@ def test_create_and_link_with_a_46_character_name_is_rejected_with_422(client, d
     )
 
     assert_rejects_name_with_422(response)
+
+
+# ── Ciclo 3 ──
+@pytest.mark.parametrize("metodo", ["patch", "put"])
+def test_editing_a_project_with_a_46_character_name_is_rejected_with_422(client, db, member_headers, metodo):
+    proyecto = make_project(db)
+    cuerpo = {"project_name": LARGO}
+    if metodo == "put":
+        cuerpo = payload(proyecto.id_client, id_project=proyecto.id_project, project_name=LARGO)
+
+    response = getattr(client, metodo)(f"/projects/{proyecto.id_project}", json=cuerpo, headers=member_headers)
+
+    assert_rejects_name_with_422(response)
