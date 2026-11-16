@@ -29,7 +29,7 @@ export default defineConfig({
 
       // Umbral mínimo: si la cobertura baja de aquí, "npm test" falla.
       // Regla de trinquete: nunca baja (ver docs/testing/cobertura.md).
-      thresholds: { lines: 99, branches: 93, functions: 95, statements: 99 },
+      thresholds: { lines: 100, branches: 99, functions: 100, statements: 100 },
     },
   },
 })

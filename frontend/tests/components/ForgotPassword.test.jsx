@@ -208,3 +208,35 @@ describe('ForgotPassword: paso 2 (restablecer)', () => {
     expect(navigate).toHaveBeenCalledWith('/')
   })
 })
+
+describe('ForgotPassword: mensajes de respaldo', () => {
+  it('should show a default message when the account lookup fails without a reason', async () => {
+    fetchMock.mockResolvedValueOnce(reply({ success: false }))
+    const user = renderPage()
+
+    await requestCode(user)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No se encontró una cuenta con ese correo')
+  })
+
+  it('should prefer the validation detail over the message', async () => {
+    fetchMock.mockResolvedValueOnce(reply({ success: false, detail: 'Formato de correo inválido', message: 'otro' }))
+    const user = renderPage()
+
+    await requestCode(user)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Formato de correo inválido')
+  })
+
+  it('should show a default message when the reset fails without a reason', async () => {
+    const user = renderPage()
+    await reachStep2(user)
+    fetchMock.mockResolvedValueOnce(reply({ success: false }))
+
+    await fillReset(user)
+    await user.click(screen.getByRole('button', { name: 'Restablecer Contraseña' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Código inválido o expirado')
+  })
+})
+

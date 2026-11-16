@@ -384,4 +384,43 @@ describe('Login: registro de empresa y usuario', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(esperado)
   })
+
+  it('should read the 2FA check when the backend sends it without the data wrapper', async () => {
+    apiFetch
+      .mockResolvedValueOnce(reply(LOGIN_OK))
+      .mockResolvedValueOnce(reply({ requires_2fa: true }))
+      .mockResolvedValueOnce(reply({ success: true }))
+    const user = renderLogin()
+
+    await submitLogin(user)
+
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/verificacion', expect.anything()))
+  })
+
+  it('should show a default message when the 2FA code cannot be sent and the backend gives no reason', async () => {
+    apiFetch
+      .mockResolvedValueOnce(reply(LOGIN_OK))
+      .mockResolvedValueOnce(reply({ data: { requires_2fa: true } }))
+      .mockResolvedValueOnce(reply({}, false))
+    const user = renderLogin()
+
+    await submitLogin(user)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo enviar el código de verificación')
+  })
+
+  it.each([
+    ['the error code', { error: 'DUPLICATE_CLIENT' }, 'DUPLICATE_CLIENT'],
+    ['a default message', {}, 'Error al registrar'],
+  ])('should fall back to %s when a failed registration has no message', async (_caso, cuerpo, esperado) => {
+    apiFetch.mockResolvedValue(reply(cuerpo, false))
+    const user = renderLogin()
+    await goToStep3(user)
+    await fillStep3(user)
+
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(esperado)
+  })
 })
+

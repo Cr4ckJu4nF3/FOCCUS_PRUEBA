@@ -296,6 +296,7 @@ export default function ProjectSelectionScreen() {
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="pss-modal-close"
+                  aria-label="Cerrar"
                 >
                   <X className="pss-modal-close-icon" />
                 </button>

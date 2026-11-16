@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -150,4 +150,38 @@ describe('TwoFactor', () => {
 
     expect(navigate).toHaveBeenCalledWith('/')
   })
+
+  it('should show a default message when resending fails without a reason', async () => {
+    apiFetch.mockResolvedValue(reply({ success: false }))
+    const user = renderPage()
+
+    await user.click(screen.getByRole('button', { name: 'Reenviar código' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Error al reenviar el código')
+  })
+
+  it('should not crash when the page is opened without the email in the navigation state', () => {
+    render(<MemoryRouter><TwoFactor /></MemoryRouter>)
+
+    expect(screen.getByLabelText('Código de Verificación')).toBeInTheDocument()
+  })
+
+  it('should hide the "code sent again" confirmation after 3 seconds', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    apiFetch.mockResolvedValue(reply({ success: true }))
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/verificacion', state: { mail: 'ana@x.co' } }]}>
+        <TwoFactor />
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Reenviar código' }))
+    expect(await screen.findByRole('status')).toBeInTheDocument()
+    await vi.advanceTimersByTimeAsync(3100)
+
+    await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+    vi.useRealTimers()
+  })
 })
+

@@ -1,5 +1,6 @@
-# Corre los tests de backend y frontend y exige el umbral de cobertura
-# (regla de trinquete: ver docs/testing/cobertura.md) en cada push y pull request.
+# CI completo: frontend, backend, integración (BD real como servicio) y E2E.
+# Cada job usa el MISMO comando que se ejecuta en local (ver docs/testing/ci.md).
+# El umbral de cobertura vive en la configuración (regla de trinquete), no aquí.
 name: tests
 
 on:
@@ -7,9 +8,47 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+# Un push nuevo a la misma rama cancela el run anterior
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Contraseñas de una BD que solo existe durante el job: no son secretos
+  DB_NAME: foccus_test
+  DB_USER: foccus_test
+  DB_PASSWORD: foccus_test
+
 jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      # vitest run --coverage: falla si baja del umbral de vite.config.js
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-frontend
+          path: frontend/coverage/
+          retention-days: 7
+
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: backend/api_usuarios
@@ -23,9 +62,9 @@ jobs:
             backend/api_usuarios/requirements.txt
             backend/api_usuarios/requirements-dev.txt
       - run: pip install -r requirements.txt -r requirements-dev.txt
-      # pytest.ini ya incluye --cov y .coveragerc define fail_under;
-      # el reporte HTML queda descargable desde la pestaña Actions
-      - run: pytest --cov-report=html
+      # Unitarias, API (SQLite) y dobles. La integración corre en su propio job:
+      # aquí se DESELECCIONA (no se «salta»), así este log no muestra tests omitidos.
+      - run: pytest -m "not integration" --cov-report=html
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -33,25 +72,144 @@ jobs:
           path: backend/api_usuarios/htmlcov/
           retention-days: 7
 
-  frontend:
+  integracion:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
-        working-directory: frontend
+        working-directory: backend/api_usuarios
+    services:
+      db:
+        image: mariadb:10.11
+        env:
+          MARIADB_DATABASE: foccus_test
+          MARIADB_USER: foccus_test
+          MARIADB_PASSWORD: foccus_test
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        # El job espera a que la BD esté lista antes de empezar los pasos
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      TEST_DATABASE_URL: mysql+pymysql://foccus_test:foccus_test@127.0.0.1:3306/foccus_test
+      # Sin BD el job FALLA en vez de saltar los tests y quedar en verde
+      REQUIRE_INTEGRATION: "1"
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            backend/api_usuarios/requirements.txt
+            backend/api_usuarios/requirements-dev.txt
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      # --no-cov: estas pruebas verifican comportamiento, no miden líneas
+      - name: Pruebas de integración (cero saltadas)
+        run: |
+          set -o pipefail
+          pytest tests/integration --no-cov -rs | tee salida.txt
+          if grep -qiE "[0-9]+ skipped" salida.txt; then
+            echo "::error::Hay tests de integración saltados: un salto en el CI es un verde falso"
+            exit 1
+          fi
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Solo vale la pena si lo rápido ya pasó
+    needs: [frontend, backend, integracion]
+    services:
+      db:
+        image: mariadb:10.11
+        env:
+          MARIADB_DATABASE: foccus_test
+          MARIADB_USER: foccus_test
+          MARIADB_PASSWORD: foccus_test
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/api_usuarios/requirements.txt
+      - run: pip install -r backend/api_usuarios/requirements.txt
+
+      # Backend en segundo plano apuntando a la BD de pruebas
+      - name: Levantar el backend
+        working-directory: backend/api_usuarios
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: "3306"
+          # El SMTP no se usa: los E2E interceptan los envíos de correo
+          MAIL_USER: no-reply@foccus.test
+          MAIL_PASSWORD: sin-uso
+          CONTACT_EMAIL: soporte@foccus.test
+          JWT_SECRET_KEY: clave-solo-para-el-ci-de-al-menos-32-bytes
+        run: nohup uvicorn app.main:app --port 8000 > ../../uvicorn.log 2>&1 &
+      - name: Esperar a que el backend responda
+        run: curl --fail --silent --retry 30 --retry-delay 1 --retry-connrefused http://127.0.0.1:8000/
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
       - run: npm ci
-      - run: npm test
-      - uses: actions/upload-artifact@v4
-        if: always()
+        working-directory: frontend
+      - run: npm ci
+        working-directory: e2e
+
+      # Caché del navegador de Playwright, con la versión de Playwright en la clave
+      - id: playwright-version
+        working-directory: e2e
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: playwright-cache
         with:
-          name: coverage-frontend
-          path: frontend/coverage/
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+      - name: Instalar Chromium
+        working-directory: e2e
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
+
+      # Playwright levanta el frontend solo (webServer en playwright.config.js)
+      - run: npx playwright test
+        working-directory: e2e
+
+      # Para diagnosticar un rojo sin reproducirlo en local: reporte HTML + trazas
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: backend-log
+          path: uvicorn.log
           retention-days: 7
 
   # No construye ni testea nada: deja en el resumen del run quién hizo commits de test.
@@ -61,7 +219,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Commits de test por autor esta semana
+      - name: Commits de test por autor desde el lunes
         run: |
           echo "### Commits de test por autor desde el lunes" >> "$GITHUB_STEP_SUMMARY"
           git shortlog -sn --since="last Monday" HEAD -- '*tests/*' '*.test.*' '*.spec.*' '*e2e/*' >> "$GITHUB_STEP_SUMMARY"
