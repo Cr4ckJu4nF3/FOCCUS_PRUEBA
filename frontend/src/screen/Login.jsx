@@ -4,6 +4,7 @@ import { KeyRound, Eye, EyeOff } from "lucide-react";
 import logo from "../assets/Logo.png";
 import FondoLogin from "../assets/FondoLogin.jpeg";
 import { apiFetch, getDeviceId, setToken } from "../api";
+import { validarContrasena } from "../utils/validarContrasena";
 import "../desing/Login.css";
 
 export default function LoginScreen() {
@@ -39,15 +40,6 @@ export default function LoginScreen() {
     confirmarContrasena: "",
   });
 
-  const validarContrasena = (password) => {
-  const reglas = [];
-  if (password.length < 8) reglas.push("Mínimo 8 caracteres");
-  if (!/[a-z]/.test(password)) reglas.push("Una letra minúscula");
-  if (!/[A-Z]/.test(password)) reglas.push("Una letra mayúscula");
-  if (!/[0-9]/.test(password)) reglas.push("Un número");
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) reglas.push("Un carácter especial");
-  return reglas;
-};
 
   const handleLogin = async (e) => {
     e.preventDefault();

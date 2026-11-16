@@ -8,7 +8,7 @@ omit =
 
 [report]
 # Umbral de cobertura. Regla de trinquete: nunca baja (ver docs/testing/cobertura.md)
-fail_under = 0
+fail_under = 53
 exclude_lines =
     pragma: no cover
     if __name__ == .__main__.:

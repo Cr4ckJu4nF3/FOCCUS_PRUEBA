@@ -4,18 +4,10 @@ import { ArrowLeft, Upload, Eye, EyeOff } from "lucide-react";
 import logo from "../assets/FoccusNB_White.png";
 import { apiFetch, clearSession } from "../api";
 import "../desing/Profile.css";
+import { validarContrasena } from "../utils/validarContrasena";
 
 const identificacionTypes = ["CC", "NIT", "TI", "PA", "CE"];
 
-const validarContrasena = (password) => {
-  const reglas = [];
-  if (password.length < 8) reglas.push("Mínimo 8 caracteres");
-  if (!/[a-z]/.test(password)) reglas.push("Una letra minúscula");
-  if (!/[A-Z]/.test(password)) reglas.push("Una letra mayúscula");
-  if (!/[0-9]/.test(password)) reglas.push("Un número");
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) reglas.push("Un carácter especial");
-  return reglas;
-};
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
